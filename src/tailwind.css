@@ -8,7 +8,7 @@
 
 body {
   color: theme('colors.black');
-  background-color: theme('colors.white');
+  background-color: theme('colors.black');
 }
 
 /* combination of Normalize.css and some additional base styles */

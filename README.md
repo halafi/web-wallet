@@ -5,7 +5,7 @@
 Install the dependencies...
 
 ```bash
-  cd react-app
+  cd web-wallet
   yarn
 ```
 
