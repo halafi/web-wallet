@@ -1,0 +1,12 @@
+node_modules/
+dist/
+
+# Logs
+logs
+*.log
+
+# Tests
+/coverage
+
+.DS_Store
+src/tailwind.generated.css
