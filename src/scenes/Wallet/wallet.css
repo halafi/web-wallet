@@ -1,0 +1,17 @@
+.max-h-custom {
+  max-height: calc(100% - 3rem);
+}
+
+
+.max-h-custom::-webkit-scrollbar {
+  width: 0.75rem;
+}
+
+.max-h-custom::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
+}
+
+.max-h-custom::-webkit-scrollbar-thumb {
+  background-color: #B6BFCB;
+  /* outline: 1px solid white; */
+}
