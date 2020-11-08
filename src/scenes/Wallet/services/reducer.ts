@@ -5,6 +5,7 @@ import Wallet from '../../../records/Wallet';
 const SET_WALLET = 'SET_WALLET';
 const SET_DELEGATES = 'SET_DELEGATES';
 const SET_TRANSACTIONS = 'SET_TRANSACTIONS';
+const SET_ERROR = 'SET_ERROR';
 
 type SetWalletAction = {
   type: typeof SET_WALLET;
@@ -24,6 +25,13 @@ type SetTransactionsAction = {
   type: typeof SET_TRANSACTIONS;
   payload: {
     transactions: Transaction[];
+  };
+};
+
+type SetErrorAction = {
+  type: typeof SET_ERROR;
+  payload: {
+    error: string;
   };
 };
 
@@ -48,12 +56,24 @@ export const setTransactions = (transactions: Transaction[]): SetTransactionsAct
   },
 });
 
-export type WalletActions = SetDelegatesAction | SetTransactionsAction | SetWalletAction;
+export const setError = (error: string): SetErrorAction => ({
+  type: SET_ERROR,
+  payload: {
+    error,
+  },
+});
+
+export type WalletActions =
+  | SetDelegatesAction
+  | SetTransactionsAction
+  | SetWalletAction
+  | SetErrorAction;
 
 export type State = {
   wallet: Wallet | null;
   delegates: Delegate[];
   transactions: Transaction[];
+  error: string | null;
 };
 
 const minesweeperReducer = (oldState: State, action: WalletActions): State => {
@@ -64,6 +84,8 @@ const minesweeperReducer = (oldState: State, action: WalletActions): State => {
       return { ...oldState, delegates: action.payload.delegates };
     case SET_TRANSACTIONS:
       return { ...oldState, transactions: action.payload.transactions };
+    case SET_ERROR:
+      return { ...oldState, error: action.payload.error };
     default:
       throw new Error();
   }

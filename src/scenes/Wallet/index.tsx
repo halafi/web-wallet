@@ -6,7 +6,12 @@ import type { RouteProps } from 'react-router-dom';
 import classnames from 'classnames';
 import { format } from 'date-fns';
 import type { State, WalletActions } from './services/reducer';
-import minesweeperReducer, { setDelegates, setTransactions, setWallet } from './services/reducer';
+import minesweeperReducer, {
+  setDelegates,
+  setTransactions,
+  setWallet,
+  setError,
+} from './services/reducer';
 import { formatPrice, getPayment, isDelegate, sumPayments, trimString } from './services/utils';
 
 const arkUsdRate = 0.330026; // TODO: unhardcode, can use https://min-api.cryptocompare.com/data/price?fsym=ARK&tsyms=USD
@@ -26,24 +31,31 @@ const Wallet = ({ location }: Props) => {
   const { address, view } = queryParams;
   const currentView: View = (view as View) || 'transactions';
 
-  // TODO: error handling
-  // TODO: wallet ARk amount
-
   // https://api.ark.io/api/delegates?page=1&limit=100
   const [state, dispatch] = useReducer<Reducer<State, WalletActions>>(minesweeperReducer, {
     delegates: [],
     transactions: [],
     wallet: null,
+    error: null,
   });
-  const { delegates, transactions, wallet } = state;
+  const { delegates, transactions, wallet, error } = state;
 
   useEffect(() => {
+    // Retrieve the Cryptography Configuration
+
+    // https://api.ark.io/api/node/configuration/crypto
     if (address) {
       const fetchWallet = async () => {
         fetch(`${API}/wallets/${address}`)
           .then((res) => res.json())
-          .then((json) => dispatch(setWallet(json.data)))
-          .catch((err) => console.error(err));
+          .then((json) => {
+            if (json.error) {
+              dispatch(setError(json.error));
+            } else {
+              dispatch(setWallet(json.data));
+            }
+          })
+          .catch((err) => dispatch(setError(String(err))));
       };
       fetchWallet();
     }
@@ -51,22 +63,37 @@ const Wallet = ({ location }: Props) => {
       const fetchTransactions = async () => {
         fetch(`${API}/wallets/${address}/transactions?orderBy=timestamp:desc&page=1&limit=20`)
           .then((res) => res.json())
-          .then((json) => dispatch(setTransactions(json.data)))
-          .catch((err) => console.error(err));
+          .then((json) => {
+            if (json.error) {
+              dispatch(setError(json.error));
+            } else {
+              dispatch(setTransactions(json.data));
+            }
+          })
+          .catch((err) => dispatch(setError(String(err))));
       };
       fetchTransactions();
     }
-    const fetchDelegates = async () => {
-      fetch(`${API}/delegates?page=1&limit=51`)
-        .then((res) => res.json())
-        .then((json) => dispatch(setDelegates(json.data)))
-        .catch((err) => console.error(err));
-    };
-    fetchDelegates();
+    if (!delegates.length) {
+      const fetchDelegates = async () => {
+        fetch(`${API}/delegates?page=1&limit=51`)
+          .then((res) => res.json())
+          .then((json) => {
+            if (json.error) {
+              dispatch(setError(json.error));
+            } else {
+              dispatch(setDelegates(json.data));
+            }
+          })
+          .catch((err) => dispatch(setError(String(err))));
+      };
+      fetchDelegates();
+    }
   }, [currentView, address]);
 
   return (
     <div>
+      {error && <div className="p-4 rounded bg-red-700 text-white text-sm">API Error: {error}</div>}
       {address && (
         <>
           <div className="flex flex-col justify-center h-20">
