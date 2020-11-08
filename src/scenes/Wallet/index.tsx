@@ -14,6 +14,7 @@ import minesweeperReducer, {
 } from './services/reducer';
 import { formatPrice, getPayment, isDelegate, sumPayments, trimString } from './services/utils';
 import classes from '../../tailwind';
+import { fetchDelegates, fetchTransactions, fetchWallet } from './services/api';
 
 const arkUsdRate = 0.330026; // TODO: unhardcode, can use https://min-api.cryptocompare.com/data/price?fsym=ARK&tsyms=USD
 
@@ -39,52 +40,21 @@ const Wallet = ({ location }: Props) => {
 
   useEffect(() => {
     // Retrieve the Cryptography Configuration
-
     // https://api.ark.io/api/node/configuration/crypto
     if (address) {
-      const fetchWallet = async () => {
-        fetch(`${API}/wallets/${address}`)
-          .then((res) => res.json())
-          .then((json) => {
-            if (json.error) {
-              dispatch(setError(json.error));
-            } else {
-              dispatch(setWallet(json.data));
-            }
-          })
-          .catch((err) => dispatch(setError(String(err))));
-      };
-      fetchWallet();
+      fetchWallet(address as string)
+        .then((res) => dispatch(setWallet(res)))
+        .catch((err) => dispatch(setError(err)));
     }
     if (currentView === 'transactions' && address) {
-      const fetchTransactions = async () => {
-        fetch(`${API}/wallets/${address}/transactions?orderBy=timestamp:desc&page=1&limit=20`)
-          .then((res) => res.json())
-          .then((json) => {
-            if (json.error) {
-              dispatch(setError(json.error));
-            } else {
-              dispatch(setTransactions(json.data));
-            }
-          })
-          .catch((err) => dispatch(setError(String(err))));
-      };
-      fetchTransactions();
+      fetchTransactions(address as string)
+        .then((res) => dispatch(setTransactions(res)))
+        .catch((err) => dispatch(setError(err)));
     }
     if (!delegates.length) {
-      const fetchDelegates = async () => {
-        fetch(`${API}/delegates?page=1&limit=51`)
-          .then((res) => res.json())
-          .then((json) => {
-            if (json.error) {
-              dispatch(setError(json.error));
-            } else {
-              dispatch(setDelegates(json.data));
-            }
-          })
-          .catch((err) => dispatch(setError(String(err))));
-      };
-      fetchDelegates();
+      fetchDelegates()
+        .then((res) => dispatch(setDelegates(res)))
+        .catch((err) => dispatch(setError(err)));
     }
   }, [currentView, address]);
 

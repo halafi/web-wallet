@@ -12,6 +12,8 @@ type Props = {
   setWallets: (wallets: string[]) => void;
 };
 
+const { localStorage } = window;
+
 const WalletSidebar = ({ wallets, setWallets }: Props) => {
   const [address, setAddress] = useState('');
 
@@ -27,7 +29,10 @@ const WalletSidebar = ({ wallets, setWallets }: Props) => {
           if (validAddress && !wallets.includes(address)) {
             // TODO: store / load via local storage
             // TODO: arkecosystem/crypto
-            setWallets(wallets.concat(address));
+            // TODO: import based on public key
+            const newWallets = wallets.concat(address);
+            setWallets(newWallets);
+            localStorage.setItem('wallets', newWallets.join(','));
             setAddress('');
           }
         }}
@@ -69,7 +74,11 @@ const WalletSidebar = ({ wallets, setWallets }: Props) => {
           </Link>
           <FaTrash
             className="cursor-pointer"
-            onClick={() => setWallets(wallets.filter((wallet) => wallet !== w))}
+            onClick={() => {
+              const newWallets = wallets.filter((wallet) => wallet !== w);
+              setWallets(newWallets);
+              localStorage.setItem('wallets', newWallets.join(','));
+            }}
           />
         </div>
       ))}

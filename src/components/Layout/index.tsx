@@ -11,9 +11,16 @@ type Props = RouteProps & {
   children: React.ReactNode;
 };
 
+const { localStorage } = window;
+
 const Layout = ({ children, location }: Props) => {
   const pathname = location?.pathname;
-  const [wallets, setWallets] = useState<string[]>([]);
+  const walletsFromLocalStorage = localStorage.getItem('wallets');
+
+  const [wallets, setWallets] = useState<string[]>(
+    // TODO: implement wallet validation
+    walletsFromLocalStorage ? walletsFromLocalStorage?.split(',') : [],
+  );
 
   return (
     <div className="my-4 mx-4 sm:mx-16 sm:my-8 rounded-lg w-full max-w-screen-xl bg-black flex">
