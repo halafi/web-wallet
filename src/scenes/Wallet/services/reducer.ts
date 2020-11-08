@@ -1,11 +1,20 @@
-const SET_DELEGATES = 'SET_DELEGATES';
+import Delegate from '../../../records/Delegate';
+import Transaction from '../../../records/Transaction';
 
-type Delegate = any;
+const SET_DELEGATES = 'SET_DELEGATES';
+const SET_TRANSACTIONS = 'SET_TRANSACTIONS';
 
 type SetDelegatesAction = {
   type: typeof SET_DELEGATES;
   payload: {
     delegates: Delegate[];
+  };
+};
+
+type SetTransactionsAction = {
+  type: typeof SET_TRANSACTIONS;
+  payload: {
+    transactions: Transaction[];
   };
 };
 
@@ -16,16 +25,26 @@ export const setDelegates = (delegates: Delegate[]): SetDelegatesAction => ({
   },
 });
 
-export type WalletActions = SetDelegatesAction;
+export const setTransactions = (transactions: Transaction[]): SetTransactionsAction => ({
+  type: SET_TRANSACTIONS,
+  payload: {
+    transactions,
+  },
+});
+
+export type WalletActions = SetDelegatesAction | SetTransactionsAction;
 
 export type State = {
   delegates: Delegate[];
+  transactions: Transaction[];
 };
 
-const minesweeperReducer = (oldState: State, action: SetDelegatesAction): State => {
+const minesweeperReducer = (oldState: State, action: WalletActions): State => {
   switch (action.type) {
     case SET_DELEGATES:
       return { ...oldState, delegates: action.payload.delegates };
+    case SET_TRANSACTIONS:
+      return { ...oldState, transactions: action.payload.transactions };
     default:
       throw new Error();
   }
