@@ -6,9 +6,8 @@ import { FaWallet, FaAddressBook, FaNewspaper, FaPuzzlePiece } from 'react-icons
 
 import './layout.css';
 
-type Props = {
+type Props = RouteProps & {
   children: React.ReactNode;
-  location: RouteProps['location'];
 };
 
 const Layout = ({ children, location }: Props) => {
@@ -60,4 +59,5 @@ const Layout = ({ children, location }: Props) => {
   );
 };
 
-export default withRouter(Layout);
+// FIXME: types
+export default withRouter<any, any>(Layout);

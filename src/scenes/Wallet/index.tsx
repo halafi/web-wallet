@@ -141,7 +141,9 @@ const Wallet = ({ location }: Props) => {
                   <Link className={clnames.link} to={`/wallet?address=${d.address}`}>
                     {d.username}
                     {wallet && wallet.vote === d.publicKey ? (
-                      <span className="p-1 ml-2 text-white text-xs rounded-md bg-red-700">Vote</span>
+                      <span className="p-1 ml-2 text-white text-xs rounded-md bg-red-700">
+                        Vote
+                      </span>
                     ) : (
                       ''
                     )}
