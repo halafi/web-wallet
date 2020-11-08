@@ -10,7 +10,7 @@ import minesweeperReducer, { setDelegates, setTransactions } from './services/re
 import { formatPrice, getPayment, isDelegate, sumPayments, trimString } from './services/utils';
 
 const clnames = {
-  link: 'text-blue-700 font-bold',
+  link: 'text-blue-600 font-bold',
 };
 
 const API = 'https://api.ark.io/api';
@@ -37,7 +37,7 @@ const Wallet = ({ location }: Props) => {
   useEffect(() => {
     if (currentView === 'transactions' && address) {
       const fetchTransactions = async () => {
-        fetch(`${API}/wallets/${address}/transactions?orderBy=timestamp:desc&page=1&limit=10`)
+        fetch(`${API}/wallets/${address}/transactions?orderBy=timestamp:desc&page=1&limit=20`)
           .then((res) => res.json())
           .then((json) => dispatch(setTransactions(json.data)))
           .catch((err) => console.error(err));
@@ -111,17 +111,17 @@ const Wallet = ({ location }: Props) => {
         </ul>
       )}
       {(address || currentView === 'transactions') && (
-        <table className="mt-6">
+        <table className="mt-6 min-w-full bg-gray-800 text-gray-400 min-h-full">
           <thead>
-            <tr>
-              <th>ID</th>
-              <th>Date</th>
-              <th>Sender</th>
-              <th>Recipient</th>
-              <th>Amount</th>
+            <tr className="text-gray-500 text-sm">
+              <th className="p-2 text-left">ID</th>
+              <th className="p-2">Date</th>
+              <th className="p-2">Sender</th>
+              <th className="p-2">Recipient</th>
+              <th className="p-2 text-right">Amount</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="min-h-full">
             {transactions.map((t) => {
               const senderDelegate = isDelegate(t.sender, delegates);
               const recipientDelegate = isDelegate(t.recipient, delegates);
@@ -132,7 +132,7 @@ const Wallet = ({ location }: Props) => {
                 : t.amount;
               return (
                 <tr key={t.id}>
-                  <td>
+                  <td className="p-2 text-left">
                     <a
                       target="_blank"
                       rel="noreferrer noopener"
@@ -142,13 +142,15 @@ const Wallet = ({ location }: Props) => {
                       {trimString(t.id)} <FaExternalLinkAlt className="ml-1" />
                     </a>
                   </td>
-                  <td>{format(new Date(t.timestamp.unix * 1000), 'dd/MM/yyyy HH:mm:ss')}</td>
+                  <td className="p-2">
+                    {format(new Date(t.timestamp.unix * 1000), 'dd/MM/yyyy HH:mm:ss')}
+                  </td>
                   <td>
                     <Link to={`/wallet?address=${t.sender}`} className={clnames.link}>
                       {(senderDelegate && senderDelegate.username) || trimString(t.sender)}
                     </Link>
                   </td>
-                  <td>
+                  <td className="p-2">
                     {t?.asset?.payments ? (
                       <a
                         href={`https://explorer.ark.io/transaction/${t.id}`}
@@ -166,7 +168,7 @@ const Wallet = ({ location }: Props) => {
                       </Link>
                     )}
                   </td>
-                  <td className="flex items-center justify-end">
+                  <td className="p-2 text-right flex items-center justify-end font-bold">
                     {t.sender === address ? '-' : '+'}&nbsp;Ѧ&nbsp;
                     {formatPrice(
                       isMultipayment
@@ -175,7 +177,7 @@ const Wallet = ({ location }: Props) => {
                       t.sender === address ? t.fee : undefined,
                     )}
                     {t.confirmations > 10 ? (
-                      <FaCheck className="ml-1 text-green-800" />
+                      <FaCheck className="ml-1 text-green-600" />
                     ) : (
                       <FaSpinner className="ml-1 text-gray-800" />
                     )}
