@@ -21,6 +21,7 @@
   "license": "MIT",
   "dependencies": {
     "autoprefixer": "^9.0.0",
+    "classnames": "^2.2.6",
     "core-js": "^3.7.0",
     "date-fns": "^2.16.1",
     "jest": "^26.6.3",
@@ -29,6 +30,7 @@
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-icons": "^3.11.0",
+    "react-router-dom": "^5.2.0",
     "regenerator-runtime": "^0.13.7",
     "tailwindcss": "^1.9.6"
   },
@@ -42,9 +44,11 @@
     "@babel/preset-react": "^7.12.5",
     "@babel/preset-typescript": "^7.12.1",
     "@hot-loader/react-dom": "^17.0.0",
+    "@types/classnames": "^2.2.11",
     "@types/jest": "^26.0.15",
     "@types/react": "^16.9.56",
     "@types/react-dom": "^16.9.9",
+    "@types/react-router-dom": "^5.1.6",
     "@typescript-eslint/eslint-plugin": "^4.6.1",
     "@typescript-eslint/parser": "^4.6.1",
     "babel-eslint": "^10.1.0",

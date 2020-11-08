@@ -44,6 +44,7 @@ module.exports = {
         800: '#2d3748',
         900: '#1a202c',
       },
+      // TODO: optimize to Ark red C72C32
       red: {
         100: '#fff5f5',
         200: '#fed7d7',
