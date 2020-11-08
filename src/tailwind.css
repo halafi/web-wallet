@@ -9,7 +9,6 @@
 body {
   color: theme('colors.black');
   background-color: theme('colors.black');
-  overflow-y: hidden; /* FIXME: not very nice */
 }
 
 /* combination of Normalize.css and some additional base styles */

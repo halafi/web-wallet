@@ -19,7 +19,7 @@ const Layout = ({ children, location }: Props) => {
         <Link to="/">
           <img src="./logo192.webp" alt="ark logo" className="w-20 h-20 cursor-pointer" />
         </Link>
-        <nav className="text-white bg-gray-700 mt-2 rounded  overflow-hidden">
+        <nav className="text-white bg-gray-700 mt-2 rounded overflow-hidden">
           <Link
             to="/wallet"
             className={classnames(
@@ -48,10 +48,10 @@ const Layout = ({ children, location }: Props) => {
         </nav>
       </div>
       <main id="main" className="grid grid-cols-4 gap-2 w-full">
-        <div className="col-span-3 p-4 rounded bg-gradient-to-r from-gray-200 to-gray-600 overflow-y-auto max-h-custom">
+        <div className="col-span-3 p-4 rounded bg-gradient-to-r from-gray-200 to-gray-600 overflow-y-auto custom-h">
           {children}
         </div>
-        <aside id="sidebar" className="p-4 rounded bg-gray-600 max-h-custom">
+        <aside id="sidebar" className="p-4 rounded bg-gray-600 custom-h">
           <button type="button">Create Wallet</button>
           <button type="button">Import Wallet</button>
         </aside>
