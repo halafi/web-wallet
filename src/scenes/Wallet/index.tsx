@@ -9,7 +9,7 @@ import type { State, WalletActions } from './services/reducer';
 import minesweeperReducer, { setDelegates, setTransactions, setWallet } from './services/reducer';
 import { formatPrice, getPayment, isDelegate, sumPayments, trimString } from './services/utils';
 
-const arkUsdRate = 0.330026; // TODO: unhardcode
+const arkUsdRate = 0.330026; // TODO: unhardcode, can use https://min-api.cryptocompare.com/data/price?fsym=ARK&tsyms=USD
 
 const clnames = {
   link: 'text-blue-600 font-bold',
@@ -37,7 +37,6 @@ const Wallet = ({ location }: Props) => {
   });
   const { delegates, transactions, wallet } = state;
 
-  console.log(address);
   useEffect(() => {
     if (address) {
       const fetchWallet = async () => {
@@ -126,15 +125,33 @@ const Wallet = ({ location }: Props) => {
         </>
       )}
       {(!address || currentView === 'delegates') && (
-        <ul className="mt-6">
-          {delegates.map((d) => (
-            <li key={d.rank}>
-              <Link to={`/wallet?address=${d.address}`}>
-                {d.rank}. {d.username} {d?.production?.approval || '0.00'}%
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <table className="mt-6 min-w-full bg-gray-800 text-gray-400 min-h-full">
+          <thead>
+            <tr className="text-gray-500 text-sm">
+              <th className="p-2 text-center w-4">Rank</th>
+              <th className="p-2 text-left">Username</th>
+              <th className="p-2 text-right">Vote %</th>
+            </tr>
+          </thead>
+          <tbody>
+            {delegates.map((d) => (
+              <tr key={d.rank} className="text-sm">
+                <td className="px-2 text-center w-4">{d.rank}</td>
+                <td className="px-2">
+                  <Link className={clnames.link} to={`/wallet?address=${d.address}`}>
+                    {d.username}
+                    {wallet && wallet.vote === d.publicKey ? (
+                      <span className="p-1 ml-2 text-white text-xs rounded-md bg-red-700">Vote</span>
+                    ) : (
+                      ''
+                    )}
+                  </Link>
+                </td>
+                <td className="px-2 text-right">{d?.production?.approval || '0.00'}%</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
       {address && currentView === 'transactions' && (
         <table className="mt-6 min-w-full bg-gray-800 text-gray-400 min-h-full">
@@ -147,7 +164,7 @@ const Wallet = ({ location }: Props) => {
               <th className="p-2 text-right">Amount</th>
             </tr>
           </thead>
-          <tbody className="min-h-full">
+          <tbody>
             {transactions.map((t) => {
               const senderDelegate = isDelegate(t.sender, delegates);
               const recipientDelegate = isDelegate(t.recipient, delegates);
@@ -173,6 +190,7 @@ const Wallet = ({ location }: Props) => {
                   </td>
                   <td>
                     <Link to={`/wallet?address=${t.sender}`} className={clnames.link}>
+                      {/* could also extend username recognition with known-wallets.json */}
                       {(senderDelegate && senderDelegate.username) || trimString(t.sender)}
                     </Link>
                   </td>

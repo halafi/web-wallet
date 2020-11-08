@@ -35,7 +35,7 @@ type Wallet = {
   };
   isDelegate: boolean;
   isResigned: boolean;
-  vote: string;
+  vote: string; // publicKey of delegate
   username?: string;
   secondPublicKey?: string;
 };
