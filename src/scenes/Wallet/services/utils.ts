@@ -7,8 +7,8 @@ export const trimString = (id: string) =>
 export const isDelegate = (address: string, delegates: Delegate[]): false | Delegate =>
   delegates.find((d) => d.address === address) || false;
 
-export const formatPrice = (input: string | number, fee?: string) =>
-  `${(Number(input) + Number(fee || 0)) / 100000000}`;
+export const formatPrice = (input: string | number, fee?: string): number =>
+  (Number(input) + Number(fee || 0)) / 100000000;
 
 export const getPayment = (address: string, payments: Payment[]) =>
   payments.find((p) => p.recipientId === address);

@@ -6,8 +6,10 @@ import type { RouteProps } from 'react-router-dom';
 import classnames from 'classnames';
 import { format } from 'date-fns';
 import type { State, WalletActions } from './services/reducer';
-import minesweeperReducer, { setDelegates, setTransactions } from './services/reducer';
+import minesweeperReducer, { setDelegates, setTransactions, setWallet } from './services/reducer';
 import { formatPrice, getPayment, isDelegate, sumPayments, trimString } from './services/utils';
+
+const arkUsdRate = 0.330026; // TODO: unhardcode
 
 const clnames = {
   link: 'text-blue-600 font-bold',
@@ -31,10 +33,21 @@ const Wallet = ({ location }: Props) => {
   const [state, dispatch] = useReducer<Reducer<State, WalletActions>>(minesweeperReducer, {
     delegates: [],
     transactions: [],
+    wallet: null,
   });
-  const { delegates, transactions } = state;
+  const { delegates, transactions, wallet } = state;
 
+  console.log(address);
   useEffect(() => {
+    if (address) {
+      const fetchWallet = async () => {
+        fetch(`${API}/wallets/${address}`)
+          .then((res) => res.json())
+          .then((json) => dispatch(setWallet(json.data)))
+          .catch((err) => console.error(err));
+      };
+      fetchWallet();
+    }
     if (currentView === 'transactions' && address) {
       const fetchTransactions = async () => {
         fetch(`${API}/wallets/${address}/transactions?orderBy=timestamp:desc&page=1&limit=20`)
@@ -66,10 +79,23 @@ const Wallet = ({ location }: Props) => {
                 href={`https://explorer.ark.io/wallets/${address}`}
                 className={classnames('flex items-center', clnames.link)}
               >
-                {address} <FaExternalLinkAlt className="ml-1" />
+                {`${address}${
+                  wallet?.attributes.delegate ? ` (${wallet?.attributes.delegate.username})` : ''
+                }`}{' '}
+                <FaExternalLinkAlt className="ml-1" />
               </a>
             </span>
-            <span>Ѧ 0.00 $0.00</span>
+            {wallet && (
+              <span className="font-bold text-gray-700">
+                Ѧ {formatPrice(wallet?.balance || 0.0)}{' '}
+                <span className="ml-1 text-xs text-gray-900">
+                  $
+                  {formatPrice(wallet.balance ? Number(wallet.balance) * arkUsdRate : 0.0).toFixed(
+                    2,
+                  )}
+                </span>
+              </span>
+            )}
           </div>
           <nav className="flex">
             <Link
@@ -110,7 +136,7 @@ const Wallet = ({ location }: Props) => {
           ))}
         </ul>
       )}
-      {(address || currentView === 'transactions') && (
+      {address && currentView === 'transactions' && (
         <table className="mt-6 min-w-full bg-gray-800 text-gray-400 min-h-full">
           <thead>
             <tr className="text-gray-500 text-sm">
