@@ -13,12 +13,9 @@ import minesweeperReducer, {
   setError,
 } from './services/reducer';
 import { formatPrice, getPayment, isDelegate, sumPayments, trimString } from './services/utils';
+import classes from '../../tailwind';
 
 const arkUsdRate = 0.330026; // TODO: unhardcode, can use https://min-api.cryptocompare.com/data/price?fsym=ARK&tsyms=USD
-
-const clnames = {
-  link: 'text-blue-600 font-bold',
-};
 
 const API = 'https://api.ark.io/api';
 
@@ -103,7 +100,7 @@ const Wallet = ({ location }: Props) => {
                 target="_blank"
                 rel="noreferrer noopener"
                 href={`https://explorer.ark.io/wallets/${address}`}
-                className={classnames('flex items-center', clnames.link)}
+                className={classnames('flex items-center', classes.link)}
               >
                 {`${address}${
                   wallet?.attributes.delegate ? ` (${wallet?.attributes.delegate.username})` : ''
@@ -165,7 +162,7 @@ const Wallet = ({ location }: Props) => {
               <tr key={d.rank} className="text-sm">
                 <td className="px-2 text-center w-4">{d.rank}</td>
                 <td className="px-2">
-                  <Link className={clnames.link} to={`/wallet?address=${d.address}`}>
+                  <Link className={classes.link} to={`/wallet?address=${d.address}`}>
                     {d.username}
                     {wallet && wallet.vote === d.publicKey ? (
                       <span className="p-1 ml-2 text-white text-xs rounded-md bg-red-700">
@@ -209,7 +206,7 @@ const Wallet = ({ location }: Props) => {
                       target="_blank"
                       rel="noreferrer noopener"
                       href={`https://explorer.ark.io/transaction/${t.id}`}
-                      className={classnames('flex items-center text-blue-700', clnames.link)}
+                      className={classnames('flex items-center text-blue-700', classes.link)}
                     >
                       {trimString(t.id)} <FaExternalLinkAlt className="ml-1" />
                     </a>
@@ -218,7 +215,7 @@ const Wallet = ({ location }: Props) => {
                     {format(new Date(t.timestamp.unix * 1000), 'dd/MM/yyyy HH:mm:ss')}
                   </td>
                   <td>
-                    <Link to={`/wallet?address=${t.sender}`} className={clnames.link}>
+                    <Link to={`/wallet?address=${t.sender}`} className={classes.link}>
                       {/* could also extend username recognition with known-wallets.json */}
                       {(senderDelegate && senderDelegate.username) || trimString(t.sender)}
                     </Link>
@@ -227,7 +224,7 @@ const Wallet = ({ location }: Props) => {
                     {t?.asset?.payments ? (
                       <a
                         href={`https://explorer.ark.io/transaction/${t.id}`}
-                        className={classnames(clnames.link, 'flex items-center')}
+                        className={classnames(classes.link, 'flex items-center')}
                         target="_blank"
                         rel="noreferrer noopener"
                       >
@@ -235,7 +232,7 @@ const Wallet = ({ location }: Props) => {
                         <FaExternalLinkAlt className="ml-1" />
                       </a>
                     ) : (
-                      <Link to={`/wallet?address=${t.recipient}`} className={clnames.link}>
+                      <Link to={`/wallet?address=${t.recipient}`} className={classes.link}>
                         {(recipientDelegate && recipientDelegate.username) ||
                           trimString(t.recipient)}
                       </Link>
