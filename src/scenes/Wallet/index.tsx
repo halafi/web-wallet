@@ -7,7 +7,7 @@ import classnames from 'classnames';
 import { format } from 'date-fns';
 import type { State, WalletActions } from './services/reducer';
 import minesweeperReducer, { setDelegates, setTransactions } from './services/reducer';
-import { formatPrice, getPayment, isDelegate, trimString } from './services/utils';
+import { formatPrice, getPayment, isDelegate, sumPayments, trimString } from './services/utils';
 
 const clnames = {
   link: 'text-blue-700 font-bold',
@@ -125,6 +125,11 @@ const Wallet = ({ location }: Props) => {
             {transactions.map((t) => {
               const senderDelegate = isDelegate(t.sender, delegates);
               const recipientDelegate = isDelegate(t.recipient, delegates);
+              const isMultipayment = t.amount === '0' && t?.asset?.payments;
+              const wasPaid = isMultipayment && getPayment(address as string, isMultipayment);
+              const multipaymentTotal = isMultipayment
+                ? sumPayments(isMultipayment, t.recipient === t.sender ? t.recipient : undefined)
+                : t.amount;
               return (
                 <tr key={t.id}>
                   <td>
@@ -151,7 +156,7 @@ const Wallet = ({ location }: Props) => {
                         target="_blank"
                         rel="noreferrer noopener"
                       >
-                        Multiplayment ({t.asset.payments.length}){' '}
+                        Multipayment ({t.asset.payments.length}){' '}
                         <FaExternalLinkAlt className="ml-1" />
                       </a>
                     ) : (
@@ -164,9 +169,10 @@ const Wallet = ({ location }: Props) => {
                   <td className="flex items-center justify-end">
                     {t.sender === address ? '-' : '+'}&nbsp;Ѧ&nbsp;
                     {formatPrice(
-                      t.amount === '0' && t?.asset?.payments
-                        ? getPayment(address as string, t.asset.payments)?.amount || '?'
+                      isMultipayment
+                        ? (t.sender !== address && wasPaid && wasPaid?.amount) || multipaymentTotal
                         : t.amount,
+                      t.sender === address ? t.fee : undefined,
                     )}
                     {t.confirmations > 10 ? (
                       <FaCheck className="ml-1 text-green-800" />
