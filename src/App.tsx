@@ -11,6 +11,7 @@ if (container) {
     <React.StrictMode>
       <HashRouter basename="/">
         <Layout>
+          {/* @ts-ignore missing props are passed by layout */}
           <Routes />
         </Layout>
       </HashRouter>

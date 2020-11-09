@@ -9,7 +9,7 @@ import type { State, WalletActions } from './services/reducer';
 import minesweeperReducer, {
   setDelegates,
   setTransactions,
-  setWallet,
+  setWalletInfo,
   setError,
 } from './services/reducer';
 import { formatPrice, getPayment, isDelegate, sumPayments, trimString } from './services/utils';
@@ -21,9 +21,12 @@ const arkUsdRate = 0.330026; // TODO: unhardcode, can use https://min-api.crypto
 const API = 'https://api.ark.io/api';
 
 type View = 'delegates' | 'transactions';
-type Props = RouteProps & {};
+type Props = RouteProps & {
+  wallets: string[];
+  setWallets: (wallets: string[]) => void;
+};
 
-const Wallet = ({ location }: Props) => {
+const Wallet = ({ location, wallets, setWallets }: Props) => {
   const query = location?.search || '';
   const queryParams = queryString.parse(query);
   const { address, view } = queryParams;
@@ -33,19 +36,26 @@ const Wallet = ({ location }: Props) => {
   const [state, dispatch] = useReducer<Reducer<State, WalletActions>>(minesweeperReducer, {
     delegates: [],
     transactions: [],
-    wallet: null,
     error: null,
+    walletInfo: [],
+    totalArkAmount: 0,
   });
-  const { delegates, transactions, wallet, error } = state;
+  const { delegates, transactions, error, walletInfo, totalArkAmount } = state;
+
+  const wallet = address ? walletInfo.find((x) => x.address === address) : null;
 
   useEffect(() => {
-    // Retrieve the Cryptography Configuration
-    // https://api.ark.io/api/node/configuration/crypto
-    if (address) {
-      fetchWallet(address as string)
-        .then((res) => dispatch(setWallet(res)))
+    if (wallets.length || address) {
+      // refetch wallets for each address
+      // clear out duplicates
+      // TODO: response caching, referesh button etc.
+      const walletsWithAddress = Array.from(new Set(wallets.concat(address as string))); // remove
+      Promise.all(walletsWithAddress.map((a) => fetchWallet(a)))
+        .then((res) => dispatch(setWalletInfo(res)))
         .catch((err) => dispatch(setError(err)));
     }
+    // Retrieve the Cryptography Configuration
+    // https://api.ark.io/api/node/configuration/crypto
     if (currentView === 'transactions' && address) {
       fetchTransactions(address as string)
         .then((res) => dispatch(setTransactions(res)))
@@ -56,11 +66,65 @@ const Wallet = ({ location }: Props) => {
         .then((res) => dispatch(setDelegates(res)))
         .catch((err) => dispatch(setError(err)));
     }
-  }, [currentView, address]);
+  }, [currentView, address, wallets]);
 
   return (
     <div>
       {error && <div className="p-4 rounded bg-red-700 text-white text-sm">API Error: {error}</div>}
+
+      {!address && (
+        <>
+          {Boolean(wallets.length) && (
+            <div className="flex flex-col justify-center h-20">
+              Total balance
+              <span className="font-bold text-gray-700">
+                Ѧ {formatPrice(totalArkAmount)}{' '}
+                <span className="ml-1 text-xs text-gray-900">
+                  ${formatPrice(totalArkAmount * arkUsdRate).toFixed(2)}
+                </span>
+              </span>
+            </div>
+          )}
+          <div className="flex flex-col">
+            {!wallets.length ? (
+              <div className="self-center h-32 flex items-center">
+                You have no wallets imported. Create or import one in the sidebar.
+              </div>
+            ) : (
+              <div>Your wallets</div>
+            )}
+
+            {Boolean(wallets.length) && (
+              <table className="mt-6 min-w-full bg-gray-800 text-gray-400 min-h-full">
+                <thead>
+                  <tr className="text-gray-500 text-sm">
+                    <th className="p-2 text-left">Wallet Address</th>
+                    <th className="p-2 text-right">Balance</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {wallets.map((wal: string) => (
+                    <tr key={wal}>
+                      <td className="p-2 text-left">
+                        <Link
+                          className={classes.link}
+                          to={`/wallet?${queryString.stringify({ address: wal })}`}
+                        >
+                          {wal}
+                        </Link>
+                      </td>
+                      <td className="p-2 text-right font-bold">
+                        Ѧ{' '}
+                        {formatPrice(walletInfo.find((w) => w.address === wal)?.balance || '0.00')}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </>
+      )}
       {address && (
         <>
           <div className="flex flex-col justify-center h-20">
@@ -118,7 +182,7 @@ const Wallet = ({ location }: Props) => {
           </nav>
         </>
       )}
-      {(!address || currentView === 'delegates') && (
+      {address && currentView === 'delegates' && (
         <table className="mt-6 min-w-full bg-gray-800 text-gray-400 min-h-full">
           <thead>
             <tr className="text-gray-500 text-sm">

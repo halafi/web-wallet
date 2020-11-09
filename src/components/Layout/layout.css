@@ -2,6 +2,9 @@
   height: calc(100vh - 2rem);
 }
 
+.custom-grid-rows {
+  grid-template-rows: minmax(0, 300px) minmax(0, 1fr);
+}
 
 .custom-h::-webkit-scrollbar {
   width: 0.75rem;
@@ -20,8 +23,16 @@
   border-left: 2px solid theme('colors.red.700');
 }
 
-@media(min-width: theme('screens.md')) {
+@media(min-width: theme('screens.sm')) {
+  .custom-h, .custom-sidebar-h {
+    height: calc(100vh - 4rem);
+  }
+  .custom-grid-rows {
+    grid-template-rows: minmax(0, 1fr);
+  }
+}
+/* @media(min-width: theme('screens.md')) {
   .custom-h {
     height: calc(100vh - 4rem);
   }
-}
+} */

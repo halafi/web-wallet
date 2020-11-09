@@ -17,19 +17,18 @@ const { localStorage } = window;
 const WalletSidebar = ({ wallets, setWallets }: Props) => {
   const [address, setAddress] = useState('');
 
+  // TODO: some hardcap on maximum of added addresses maybe
   const validAddress = address && address.length === ADDRESS_LENGTH;
 
   return (
-    <aside id="sidebar" className="p-4 rounded bg-gray-800 custom-h">
+    <aside id="sidebar" className="p-4 rounded bg-gray-800 custom-sidebar-h">
       {/* <button type="button">Create Wallet</button> */}
       <form
         className="mb-2"
         onSubmit={(ev) => {
           ev.preventDefault();
           if (validAddress && !wallets.includes(address)) {
-            // TODO: store / load via local storage
             // TODO: arkecosystem/crypto
-            // TODO: import based on public key
             const newWallets = wallets.concat(address);
             setWallets(newWallets);
             localStorage.setItem('wallets', newWallets.join(','));
@@ -64,24 +63,26 @@ const WalletSidebar = ({ wallets, setWallets }: Props) => {
         </div>
       </form>
       <hr className="my-3" />
-      {wallets.map((w) => (
-        <div
-          key={w}
-          className="flex items-center justify-between cursor-pointer text-gray-300 my-2"
-        >
-          <Link className={classes.link} to={`/wallet?address=${w}`}>
-            {trimString(w)}
-          </Link>
-          <FaTrash
-            className="cursor-pointer"
-            onClick={() => {
-              const newWallets = wallets.filter((wallet) => wallet !== w);
-              setWallets(newWallets);
-              localStorage.setItem('wallets', newWallets.join(','));
-            }}
-          />
-        </div>
-      ))}
+      <div className="overflow-y-auto h-32 sm:h-full">
+        {wallets.map((w) => (
+          <div
+            key={w}
+            className="flex items-center justify-between cursor-pointer text-gray-300 my-2"
+          >
+            <Link className={classes.link} to={`/wallet?address=${w}`}>
+              {trimString(w)}
+            </Link>
+            <FaTrash
+              className="cursor-pointer"
+              onClick={() => {
+                const newWallets = wallets.filter((wallet) => wallet !== w);
+                setWallets(newWallets);
+                localStorage.setItem('wallets', newWallets.join(','));
+              }}
+            />
+          </div>
+        ))}
+      </div>
     </aside>
   );
 };

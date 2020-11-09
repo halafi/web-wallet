@@ -1,4 +1,5 @@
 import type Delegate from '../../../records/Delegate';
+import type Wallet from '../../../records/Wallet';
 import type { Payment } from '../../../records/Transaction';
 
 export const trimString = (id: string) =>
@@ -12,6 +13,9 @@ export const formatPrice = (input: string | number, fee?: string): number =>
 
 export const getPayment = (address: string, payments: Payment[]) =>
   payments.find((p) => p.recipientId === address);
+
+export const sumWallets = (wallets: Wallet[]): number =>
+  wallets.reduce((acc, w) => acc + Number(w.balance), 0);
 
 export const sumPayments = (payments: Payment[], filterAddress?: string) =>
   payments

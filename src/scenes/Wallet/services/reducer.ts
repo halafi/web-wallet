@@ -1,18 +1,12 @@
 import Delegate from '../../../records/Delegate';
 import Transaction from '../../../records/Transaction';
 import Wallet from '../../../records/Wallet';
+import { sumWallets } from './utils';
 
-const SET_WALLET = 'SET_WALLET';
 const SET_DELEGATES = 'SET_DELEGATES';
 const SET_TRANSACTIONS = 'SET_TRANSACTIONS';
+const SET_WALLET_INFO = 'SET_WALLET_INFO';
 const SET_ERROR = 'SET_ERROR';
-
-type SetWalletAction = {
-  type: typeof SET_WALLET;
-  payload: {
-    wallet: Wallet;
-  };
-};
 
 type SetDelegatesAction = {
   type: typeof SET_DELEGATES;
@@ -28,6 +22,13 @@ type SetTransactionsAction = {
   };
 };
 
+type SetWalletInfoAction = {
+  type: typeof SET_WALLET_INFO;
+  payload: {
+    walletInfo: Wallet[];
+  };
+};
+
 type SetErrorAction = {
   type: typeof SET_ERROR;
   payload: {
@@ -35,10 +36,10 @@ type SetErrorAction = {
   };
 };
 
-export const setWallet = (wallet: Wallet): SetWalletAction => ({
-  type: SET_WALLET,
+export const setWalletInfo = (walletInfo: Wallet[]): SetWalletInfoAction => ({
+  type: SET_WALLET_INFO,
   payload: {
-    wallet,
+    walletInfo,
   },
 });
 
@@ -66,24 +67,29 @@ export const setError = (error: string): SetErrorAction => ({
 export type WalletActions =
   | SetDelegatesAction
   | SetTransactionsAction
-  | SetWalletAction
+  | SetWalletInfoAction
   | SetErrorAction;
 
 export type State = {
-  wallet: Wallet | null;
   delegates: Delegate[];
   transactions: Transaction[];
   error: string | null;
+  walletInfo: Wallet[];
+  totalArkAmount: number;
 };
 
 const minesweeperReducer = (oldState: State, action: WalletActions): State => {
   switch (action.type) {
-    case SET_WALLET:
-      return { ...oldState, wallet: action.payload.wallet };
     case SET_DELEGATES:
       return { ...oldState, delegates: action.payload.delegates };
     case SET_TRANSACTIONS:
       return { ...oldState, transactions: action.payload.transactions };
+    case SET_WALLET_INFO:
+      return {
+        ...oldState,
+        walletInfo: action.payload.walletInfo,
+        totalArkAmount: sumWallets(action.payload.walletInfo),
+      };
     case SET_ERROR:
       return { ...oldState, error: action.payload.error };
     default:

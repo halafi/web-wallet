@@ -1,27 +1,27 @@
-import React, { useReducer, useEffect, Reducer } from 'react';
-// import { FaWallet, FaAddressBook, FaNewspaper, FaPuzzlePiece } from 'react-icons/fa';
-// import type { State, WalletActions } from './services/reducer';
-// import minesweeperReducer, { setDelegates } from './services/reducer';
+import React from 'react';
+import classnames from 'classnames';
+import { FaExternalLinkAlt } from 'react-icons/fa';
+import classes from '../../tailwind';
 
-// const API = 'https://api.ark.io/api';
-const Overview = () => {
-  // https://api.ark.io/api/delegates?page=1&limit=100
-  // const [state, dispatch] = useReducer<Reducer<State, WalletActions>>(minesweeperReducer, {
-  //   delegates: [],
-  // });
-  // const { delegates } = state;
-
-  // useEffect(() => {
-  //   const fetchDelegates = async () => {
-  //     fetch(`${API}/delegates?page=1&limit=51`)
-  //       .then((res) => res.json())
-  //       .then((json) => dispatch(setDelegates(json.data)))
-  //       .catch((err) => console.error(err));
-  //   };
-  //   fetchDelegates();
-  // }, []);
-
-  return <div>Welcome</div>;
-};
+const Overview = () => (
+  <div className="flex flex-col">
+    <p className="self-center h-32 flex items-center">Welcome.</p>
+    <p className="self-center flex items-center">
+      Start by importing a wallet, or import some of&nbsp;
+      <a
+        href="https://explorer.ark.io/top-wallets/1"
+        className={classnames(classes.link, 'flex items-center')}
+        target="_blank"
+        rel="noreferrer noopener"
+      >
+        ARK&apos;s top wallets&nbsp;
+        <FaExternalLinkAlt />
+      </a>
+    </p>
+    <p className="self-center text-sm text-gray-800">
+      Note: read-only mode, making transactions won&apos;t work.
+    </p>
+  </div>
+);
 
 export default Overview;
