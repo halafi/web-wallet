@@ -68,7 +68,7 @@ const Layout = ({ children, location }: Props) => {
         id="main"
         className="grid sm:grid-cols-4 sm:grid-rows-none gap-2 w-full custom-grid-rows"
       >
-        <div className="row-start-2 row-end-3 sm:row-start-1 sm:row-end-2 col-span-4 sm:col-span-3 p-4 rounded bg-gradient-to-r from-gray-200 to-gray-600 overflow-y-auto custom-h">
+        <div className="row-start-2 row-end-3 sm:row-start-1 sm:row-end-2 col-span-4 sm:col-span-3 p-2 sm:p-4 rounded bg-gradient-to-r from-gray-200 to-gray-600 overflow-y-auto custom-h">
           {childrenWithProps}
         </div>
         <div className="row-start-1 row-end-2 sm:row-start-1 sm:row-end-2 col-span-4 sm:col-span-1">

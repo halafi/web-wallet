@@ -21,7 +21,7 @@ const WalletSidebar = ({ wallets, setWallets }: Props) => {
   const validAddress = address && address.length === ADDRESS_LENGTH;
 
   return (
-    <aside id="sidebar" className="p-4 rounded bg-gray-800 custom-sidebar-h">
+    <aside id="sidebar" className="p-2 sm:p-4 rounded bg-gray-800 custom-sidebar-h">
       {/* <button type="button">Create Wallet</button> */}
       <form
         className="mb-2"

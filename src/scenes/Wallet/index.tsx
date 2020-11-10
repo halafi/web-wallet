@@ -75,7 +75,7 @@ const Wallet = ({ location, wallets, setWallets }: Props) => {
       {!address && (
         <>
           {Boolean(wallets.length) && (
-            <div className="flex flex-col justify-center h-20">
+            <div className="flex flex-col justify-center h-20 whitespace-no-wrap">
               Total balance
               <span className="font-bold text-gray-700">
                 Ѧ {formatPrice(totalArkAmount)}{' '}
@@ -95,25 +95,25 @@ const Wallet = ({ location, wallets, setWallets }: Props) => {
             )}
 
             {Boolean(wallets.length) && (
-              <table className="mt-6 min-w-full bg-gray-800 text-gray-400 min-h-full">
+              <table className="mt-6 min-w-full min-h-full bg-gray-800 text-gray-400">
                 <thead>
                   <tr className="text-gray-500 text-sm">
-                    <th className="p-2 text-left">Wallet Address</th>
+                    <th className="p-2 text-left">Wallet</th>
                     <th className="p-2 text-right">Balance</th>
                   </tr>
                 </thead>
                 <tbody>
                   {wallets.map((wal: string) => (
                     <tr key={wal}>
-                      <td className="p-2 text-left">
+                      <td className="p-2 text-left text-sm sm:text-base">
                         <Link
                           className={classes.link}
                           to={`/wallet?${queryString.stringify({ address: wal })}`}
                         >
-                          {wal}
+                          {trimString(wal)}
                         </Link>
                       </td>
-                      <td className="p-2 text-right font-bold">
+                      <td className="p-2 text-right font-bold text-sm sm:text-base">
                         Ѧ{' '}
                         {formatPrice(walletInfo.find((w) => w.address === wal)?.balance || '0.00')}
                       </td>

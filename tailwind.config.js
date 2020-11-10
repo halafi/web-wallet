@@ -7,7 +7,7 @@ module.exports = {
   purge: {
     purgeLayersByDefault: true,
     // layers: ['components', 'utilities'],
-    content: ['./public/index.html', './src/**/*.tsx'],
+    content: ['./public/index.html', './src/**/*.tsx', './src/tailwind.ts'],
   },
   target: 'relaxed',
   prefix: '',
