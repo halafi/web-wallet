@@ -1,10 +1,9 @@
 import React, { useReducer, useEffect, Reducer } from 'react';
 import queryString from 'query-string';
-import { FaArrowLeft, FaExternalLinkAlt, FaCheck, FaSpinner } from 'react-icons/fa';
+import { FaArrowLeft, FaExternalLinkAlt } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import type { RouteProps } from 'react-router-dom';
 import classnames from 'classnames';
-import { format } from 'date-fns';
 import type { State, WalletActions } from './services/reducer';
 import minesweeperReducer, {
   setDelegates,
@@ -12,15 +11,18 @@ import minesweeperReducer, {
   setWalletInfo,
   setError,
 } from './services/reducer';
-import { formatPrice, getPayment, isDelegate, sumPayments, trimString } from './services/utils';
+import { formatPrice } from './services/utils';
 import classes from '../../tailwind';
 import { fetchDelegates, fetchTransactions, fetchWallet } from './services/api';
+import WalletList from './components/WalletList';
+import DelegateList from './components/DelegateList';
+import TransactionList from './components/TransactionList';
 
 const arkUsdRate = 0.330026; // TODO: unhardcode, can use https://min-api.cryptocompare.com/data/price?fsym=ARK&tsyms=USD
 
 const API = 'https://api.ark.io/api';
 
-type View = 'delegates' | 'transactions';
+type View = 'delegates' | 'transactions' | 'create';
 type Props = RouteProps & {
   wallets: string[];
   setWallets: (wallets: string[]) => void;
@@ -42,7 +44,7 @@ const Wallet = ({ location, wallets, setWallets }: Props) => {
   });
   const { delegates, transactions, error, walletInfo, totalArkAmount } = state;
 
-  const wallet = address ? walletInfo.find((x) => x.address === address) : null;
+  const wallet = address ? walletInfo.find((x) => x.address === address) || null : null;
 
   useEffect(() => {
     if (wallets.length || address) {
@@ -72,7 +74,20 @@ const Wallet = ({ location, wallets, setWallets }: Props) => {
     <div>
       {error && <div className="p-4 rounded bg-red-700 text-white text-sm">API Error: {error}</div>}
 
-      {!address && (
+      {view === 'create' && (
+        <div>
+          <nav className="flex mb-4">
+            <Link
+              to="/wallet"
+              className="py-2 px-4 flex items-center bg-gray-800 text-gray-400 hover:text-white"
+            >
+              <FaArrowLeft /> Back
+            </Link>
+          </nav>
+          Wallet creation
+        </div>
+      )}
+      {!address && view !== 'create' && (
         <>
           {Boolean(wallets.length) && (
             <div className="flex flex-col justify-center h-20 whitespace-no-wrap">
@@ -86,41 +101,28 @@ const Wallet = ({ location, wallets, setWallets }: Props) => {
             </div>
           )}
           <div className="flex flex-col">
-            {!wallets.length ? (
-              <div className="self-center h-32 flex items-center">
-                You have no wallets imported. Create or import one in the sidebar.
-              </div>
+            {wallets.length ? (
+              <>
+                <div className="flex justify-between">
+                  Your wallets:{' '}
+                  <Link
+                    to="/wallet?view=create"
+                    className={classnames(classes.link, 'mb-2 text-blue-800')}
+                  >
+                    Create new wallet
+                  </Link>
+                </div>
+                <WalletList wallets={wallets} walletInfo={walletInfo} />
+              </>
             ) : (
-              <div>Your wallets</div>
-            )}
-
-            {Boolean(wallets.length) && (
-              <table className="mt-6 min-w-full min-h-full bg-gray-800 text-gray-400">
-                <thead>
-                  <tr className="text-gray-500 text-sm">
-                    <th className="p-2 text-left">Wallet</th>
-                    <th className="p-2 text-right">Balance</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {wallets.map((wal: string) => (
-                    <tr key={wal}>
-                      <td className="p-2 text-left text-sm sm:text-base">
-                        <Link
-                          className={classes.link}
-                          to={`/wallet?${queryString.stringify({ address: wal })}`}
-                        >
-                          {trimString(wal)}
-                        </Link>
-                      </td>
-                      <td className="p-2 text-right font-bold text-sm sm:text-base">
-                        Ѧ{' '}
-                        {formatPrice(walletInfo.find((w) => w.address === wal)?.balance || '0.00')}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <div className="self-center h-32 flex items-center text-center">
+                You have no wallets imported.
+                <br />
+                <Link to="/wallet?view=create" className={classes.link}>
+                  Create new wallet
+                </Link>
+                &nbsp;or import one in the sidebar.
+              </div>
             )}
           </div>
         </>
@@ -183,114 +185,14 @@ const Wallet = ({ location, wallets, setWallets }: Props) => {
         </>
       )}
       {address && currentView === 'delegates' && (
-        <table className="mt-6 min-w-full bg-gray-800 text-gray-400 min-h-full">
-          <thead>
-            <tr className="text-gray-500 text-sm">
-              <th className="p-2 text-center w-4">Rank</th>
-              <th className="p-2 text-left">Username</th>
-              <th className="p-2 text-right">Vote %</th>
-            </tr>
-          </thead>
-          <tbody>
-            {delegates.map((d) => (
-              <tr key={d.rank} className="text-sm">
-                <td className="px-2 text-center w-4">{d.rank}</td>
-                <td className="px-2">
-                  <Link className={classes.link} to={`/wallet?address=${d.address}`}>
-                    {d.username}
-                    {wallet && wallet.vote === d.publicKey ? (
-                      <span className="p-1 ml-2 text-white text-xs rounded-md bg-red-700">
-                        Vote
-                      </span>
-                    ) : (
-                      ''
-                    )}
-                  </Link>
-                </td>
-                <td className="px-2 text-right">{d?.production?.approval || '0.00'}%</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <DelegateList delegates={delegates} wallet={wallet} />
       )}
       {address && currentView === 'transactions' && (
-        <table className="mt-6 min-w-full bg-gray-800 text-gray-400 min-h-full">
-          <thead>
-            <tr className="text-gray-500 text-sm">
-              <th className="p-2 text-left">ID</th>
-              <th className="p-2">Date</th>
-              <th className="p-2">Sender</th>
-              <th className="p-2">Recipient</th>
-              <th className="p-2 text-right">Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            {transactions.map((t) => {
-              const senderDelegate = isDelegate(t.sender, delegates);
-              const recipientDelegate = isDelegate(t.recipient, delegates);
-              const isMultipayment = t.amount === '0' && t?.asset?.payments;
-              const wasPaid = isMultipayment && getPayment(address as string, isMultipayment);
-              const multipaymentTotal = isMultipayment
-                ? sumPayments(isMultipayment, t.recipient === t.sender ? t.recipient : undefined)
-                : t.amount;
-              return (
-                <tr key={t.id}>
-                  <td className="p-2 text-left">
-                    <a
-                      target="_blank"
-                      rel="noreferrer noopener"
-                      href={`https://explorer.ark.io/transaction/${t.id}`}
-                      className={classnames('flex items-center text-blue-700', classes.link)}
-                    >
-                      {trimString(t.id)} <FaExternalLinkAlt className="ml-1" />
-                    </a>
-                  </td>
-                  <td className="p-2">
-                    {format(new Date(t.timestamp.unix * 1000), 'dd/MM/yyyy HH:mm:ss')}
-                  </td>
-                  <td>
-                    <Link to={`/wallet?address=${t.sender}`} className={classes.link}>
-                      {/* could also extend username recognition with known-wallets.json */}
-                      {(senderDelegate && senderDelegate.username) || trimString(t.sender)}
-                    </Link>
-                  </td>
-                  <td className="p-2">
-                    {t?.asset?.payments ? (
-                      <a
-                        href={`https://explorer.ark.io/transaction/${t.id}`}
-                        className={classnames(classes.link, 'flex items-center')}
-                        target="_blank"
-                        rel="noreferrer noopener"
-                      >
-                        Multipayment ({t.asset.payments.length}){' '}
-                        <FaExternalLinkAlt className="ml-1" />
-                      </a>
-                    ) : (
-                      <Link to={`/wallet?address=${t.recipient}`} className={classes.link}>
-                        {(recipientDelegate && recipientDelegate.username) ||
-                          trimString(t.recipient)}
-                      </Link>
-                    )}
-                  </td>
-                  <td className="p-2 text-right flex items-center justify-end font-bold">
-                    {t.sender === address ? '-' : '+'}&nbsp;Ѧ&nbsp;
-                    {formatPrice(
-                      isMultipayment
-                        ? (t.sender !== address && wasPaid && wasPaid?.amount) || multipaymentTotal
-                        : t.amount,
-                      t.sender === address ? t.fee : undefined,
-                    )}
-                    {t.confirmations > 10 ? (
-                      <FaCheck className="ml-1 text-green-600" />
-                    ) : (
-                      <FaSpinner className="ml-1 text-gray-800" />
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        <TransactionList
+          transactions={transactions}
+          address={address as string}
+          delegates={delegates}
+        />
       )}
     </div>
   );

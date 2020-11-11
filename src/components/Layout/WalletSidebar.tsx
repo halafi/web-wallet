@@ -23,8 +23,11 @@ const WalletSidebar = ({ wallets, setWallets }: Props) => {
   return (
     <aside id="sidebar" className="p-2 sm:p-4 rounded bg-gray-800 custom-sidebar-h">
       {/* <button type="button">Create Wallet</button> */}
+      <Link to="/wallet?view=create" className={classes.link}>
+        Create New Wallet
+      </Link>
       <form
-        className="mb-2"
+        className="my-2"
         onSubmit={(ev) => {
           ev.preventDefault();
           if (validAddress && !wallets.includes(address)) {
