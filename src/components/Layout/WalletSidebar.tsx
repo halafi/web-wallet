@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import classnames from 'classnames';
 import { FaPlus, FaTrash } from 'react-icons/fa';
+import { Identities } from '@arkecosystem/crypto';
 import { Link } from 'react-router-dom';
 import { trimString } from '../../scenes/Wallet/services/utils';
 import classes from '../../tailwind';
-
-const ADDRESS_LENGTH = 34;
 
 type Props = {
   wallets: string[];
@@ -15,10 +14,12 @@ type Props = {
 const { localStorage } = window;
 
 const WalletSidebar = ({ wallets, setWallets }: Props) => {
-  const [address, setAddress] = useState('');
+  const [value, setValue] = useState('');
 
   // TODO: some hardcap on maximum of added addresses maybe
-  const validAddress = address && address.length === ADDRESS_LENGTH;
+  const isValidAddress = Identities.Address.validate(value);
+  const isValidPublicKey = Identities.PublicKey.validate(value);
+  const isValid = isValidAddress || isValidPublicKey;
 
   return (
     <aside id="sidebar" className="p-2 sm:p-4 rounded bg-gray-800 custom-sidebar-h">
@@ -30,12 +31,13 @@ const WalletSidebar = ({ wallets, setWallets }: Props) => {
         className="my-2"
         onSubmit={(ev) => {
           ev.preventDefault();
-          if (validAddress && !wallets.includes(address)) {
-            // TODO: arkecosystem/crypto
-            const newWallets = wallets.concat(address);
+          if (isValid && !wallets.includes(value)) {
+            const newWallets = isValidPublicKey
+              ? wallets.concat(Identities.Address.fromPublicKey(value))
+              : wallets.concat(value);
             setWallets(newWallets);
             localStorage.setItem('wallets', newWallets.join(','));
-            setAddress('');
+            setValue('');
           }
         }}
       >
@@ -45,8 +47,8 @@ const WalletSidebar = ({ wallets, setWallets }: Props) => {
             id="address"
             className="w-full py-1 px-2 mt-1 text-sm rounded text-black"
             type="text"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
             placeholder="Address"
           />
         </label>
@@ -56,8 +58,8 @@ const WalletSidebar = ({ wallets, setWallets }: Props) => {
             className={classnames(
               'mt-3 border-2 bg-gray-700 border-gray-700 rounded-3xl p-1 text-gray-300',
               {
-                'cursor-not-allowed text-gray-600': !validAddress,
-                'hover:text-gray-500': validAddress,
+                'cursor-not-allowed text-gray-600': !isValid,
+                'hover:text-gray-500': isValid,
               },
             )}
           >
