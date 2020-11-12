@@ -17,10 +17,9 @@ import { fetchDelegates, fetchTransactions, fetchWallet } from './services/api';
 import WalletList from './components/WalletList';
 import DelegateList from './components/DelegateList';
 import TransactionList from './components/TransactionList';
+import WalletCreation from './scenes/WalletCreation';
 
 const arkUsdRate = 0.330026; // TODO: unhardcode, can use https://min-api.cryptocompare.com/data/price?fsym=ARK&tsyms=USD
-
-const API = 'https://api.ark.io/api';
 
 type View = 'delegates' | 'transactions' | 'create';
 type Props = RouteProps & {
@@ -73,20 +72,7 @@ const Wallet = ({ location, wallets, setWallets }: Props) => {
   return (
     <div>
       {error && <div className="p-4 rounded bg-red-700 text-white text-sm">API Error: {error}</div>}
-
-      {view === 'create' && (
-        <div>
-          <nav className="flex mb-4">
-            <Link
-              to="/wallet"
-              className="py-2 px-4 flex items-center bg-gray-800 text-gray-400 hover:text-white"
-            >
-              <FaArrowLeft /> Back
-            </Link>
-          </nav>
-          Wallet creation
-        </div>
-      )}
+      {view === 'create' && <WalletCreation />}
       {!address && view !== 'create' && (
         <>
           {Boolean(wallets.length) && (
